@@ -44,6 +44,9 @@ const NavbarComponent = () => {
               <Nav.Link as={Link} to="/features" style={getNavStyle("/features")}>
                 Features
               </Nav.Link>
+              <Nav.Link as={Link} to="/history" style={getNavStyle("/history")}>
+                History
+              </Nav.Link>
             </>
           )}
         </Nav>

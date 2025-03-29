@@ -14,6 +14,7 @@ import Home from "./pages/Home";
 
 // Import introduction pages
 import Features from "./pages/Intro/Features";
+import History from "./pages/Intro/History";
 
 // Import authentication pages
 import Login from "./pages/Auth/Login";
@@ -33,6 +34,7 @@ const App = () => (
             <Route exact path="/signup" element={<Signup />} />
             <Route exact path="/home" element={<Home />} />
             <Route exact path="/features" element={<Features />} />
+            <Route exact path="/history" element={<History />} />
           </Route>
         </Route>
       </Route>
