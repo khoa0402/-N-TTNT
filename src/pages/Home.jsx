@@ -162,15 +162,53 @@ const Home = () => {
             <div style={{ minHeight: "100px" }}>
               {fanOn && (
                 <>
-                  <Form.Label className="mt-3">Fan Speed: {fanSpeed}%</Form.Label>
-                  <Form.Range min="0" max="100" step="1" value={fanSpeed} onChange={(e) => setFanSpeed(e.target.value)} />
+                  <Form.Label className="mt-3">Fan Speed</Form.Label>
+                    <div className="d-flex justify-content-around">
+                      <Button
+                        variant={fanSpeed === 30 ? "primary" : "outline-primary"}
+                        onClick={() => setFanSpeed(30)}
+                      >
+                        Low
+                      </Button>
+                      <Button
+                        variant={fanSpeed === 60 ? "primary" : "outline-primary"}
+                        onClick={() => setFanSpeed(60)}
+                      >
+                        Medium
+                      </Button>
+                      <Button
+                        variant={fanSpeed === 100 ? "primary" : "outline-primary"}
+                        onClick={() => setFanSpeed(100)}
+                      >
+                        High
+                      </Button>
+                    </div>
                 </>
               )}
 
               {lightOn && (
                 <>
-                  <Form.Label className="mt-3">Light Brightness: {lightBrightness}%</Form.Label>
-                  <Form.Range min="0" max="100" step="1" value={lightBrightness} onChange={(e) => setLightBrightness(e.target.value)} />
+                  <Form.Label className="mt-3">Light Brightness</Form.Label>
+                    <div className="d-flex justify-content-around">
+                      <Button
+                        variant={lightBrightness === 30 ? "warning" : "outline-warning"}
+                        onClick={() => setLightBrightness(30)}
+                      >
+                        Low
+                      </Button>
+                      <Button
+                        variant={lightBrightness === 60 ? "warning" : "outline-warning"}
+                        onClick={() => setLightBrightness(60)}
+                      >
+                        Medium
+                      </Button>
+                      <Button
+                        variant={lightBrightness === 100 ? "warning" : "outline-warning"}
+                        onClick={() => setLightBrightness(100)}
+                      >
+                        Highs
+                      </Button>
+                    </div>
                 </>
               )}
             </div>
