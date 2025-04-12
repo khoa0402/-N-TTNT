@@ -22,6 +22,7 @@ import Signup from "./pages/Auth/Signup";
 
 // Import bootstrap css
 import "bootstrap/dist/css/bootstrap.min.css";
+import Test from "./pages/Test";
 
 const App = () => (
   <BrowserRouter>
@@ -30,6 +31,7 @@ const App = () => (
         <Route exact path="/" element={<PrivateRouteCheck />}>
           <Route exact path="/" element={<Layout />}>
             <Route exact path="/" element={<Login />} />
+            <Route exact path="/test" element={<Test />} />
             <Route exact path="/login" element={<Login />} />
             <Route exact path="/signup" element={<Signup />} />
             <Route exact path="/home" element={<Home />} />
