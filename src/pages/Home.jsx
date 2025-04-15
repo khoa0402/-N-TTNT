@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ReactTypingEffect from "react-typing-effect";
 import {
   Container,
@@ -12,6 +12,7 @@ import {
 } from "react-bootstrap";
 import { FaHeart, FaStar } from "react-icons/fa";
 import { FaDoorOpen, FaDoorClosed } from "react-icons/fa";
+import {FaMicrophone, FaUserCircle} from "react-icons/fa";
 import { BsFillLightbulbFill, BsFan } from "react-icons/bs";
 import { Line } from "react-chartjs-2";
 import { motion } from "framer-motion";
@@ -19,6 +20,7 @@ import { SketchPicker } from "react-color";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "chart.js/auto";
 import apiService from "../api/api";
+import Webcam from "react-webcam";
 
 const predefinedColors = [
   { name: "red", hex: "#FF0000" },
@@ -54,6 +56,15 @@ const Home = () => {
   const [showTempAlert, setShowTempAlert] = useState(false);
   const [showHumidityAlert, setShowHumidityAlert] = useState(false);
   const [showLightAlert, setShowLightAlert] = useState(false);
+
+  const [showFaceScan, setShowFaceScan] = useState(false);
+  const [faceScanComplete, setFaceScanComplete] = useState(false);
+
+  const [showVoiceModal, setShowVoiceModal] = useState(false);
+  const [transcriptList, setTranscriptList] = useState([]);
+  const [isListening, setIsListening] = useState(false);
+
+  const recognitionRef = useRef(null);
 
   // State cho dữ liệu biểu đồ
   const [tempData, setTempData] = useState([
@@ -171,6 +182,78 @@ const Home = () => {
       .catch((error) => {
         console.error("Error changing light color:", error);
       });
+  };
+
+  const handleStartFaceScan = () => {
+    setFaceScanComplete(false);
+    setShowFaceScan(true);
+  
+    const scanDuration = 10000;
+  
+    setTimeout(() => {
+      setFaceScanComplete(true);
+      setShowFaceScan(false);
+    }, scanDuration);
+  };
+  
+  useEffect(() => {
+    if (faceScanComplete) {
+      const timer = setTimeout(() => {
+        setFaceScanComplete(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [faceScanComplete]);
+  
+
+  useEffect(() => {
+    if (faceScanComplete) {
+      const timer = setTimeout(() => {
+        setFaceScanComplete(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [faceScanComplete]);
+
+  const handleOpenVoiceModal = () => {
+    setTranscriptList([]);
+    setShowVoiceModal(true);
+  };
+
+  const toggleVoiceRecognition = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Speech Recognition is not supported in this browser.");
+      return;
+    }
+
+    if (!isListening) {
+      const recognition = new SpeechRecognition();
+      recognition.lang = "vi-VN"; 
+      recognition.interimResults = false;
+      recognition.continuous = false;
+
+      recognition.onresult = (event) => {
+        const newTranscript = event.results[0][0].transcript;
+        setTranscriptList(prev => [...prev, newTranscript]);
+      };
+
+      recognition.onerror = (event) => {
+        setTranscriptList(prev => [...prev, "Error: " + event.error]);
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+      setIsListening(true);
+    } else {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    }
   };
 
   return (
@@ -303,6 +386,17 @@ const Home = () => {
                 },
               }}
             />
+          </Card>
+          <Card className="p-3 mt-3 text-center shadow-sm">
+            <h5>Security & Recognition</h5>
+            <div className="d-flex justify-content-center gap-3 mt-2">
+              <Button variant="info" onClick={handleStartFaceScan} className="d-flex align-items-center gap-2">
+                <FaUserCircle /> Face Recognition
+              </Button>
+              <Button variant="dark" onClick={handleOpenVoiceModal} className="d-flex align-items-center gap-2">
+                <FaMicrophone /> Voice Command
+              </Button>
+            </div>
           </Card>
         </Col>
 
@@ -587,6 +681,66 @@ const Home = () => {
           </Card>
         </Col>
       </Row>
+
+      {/* Face Scan UI */}
+      {showFaceScan && (
+        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-75 z-3">
+          <div className="position-relative">
+            <Webcam
+              width={480}  
+              height={360}  
+              videoConstraints={{ facingMode: "user" }}
+              className="rounded border border-light"
+            />
+            <motion.div
+              className="position-absolute w-100"
+              style={{
+                height: "6px",  
+                background: "linear-gradient(to right, transparent, lime, transparent)",
+                opacity: 0.8,
+                boxShadow: "0 0 12px lime"
+              }}
+              animate={{ top: ["0%", "90%"] }}
+              transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
+            />
+            <div className="text-white text-center mt-2">Scanning face...</div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Message */}
+      {faceScanComplete && (
+        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center z-3">
+          <div className="text-white p-4 rounded shadow" style={{ backgroundColor: "rgba(40, 167, 69, 0.7)" }}>
+            Face recognized successfully!
+          </div>
+        </div>
+      )}
+      {/* Voice Recognition Modal */}
+      <Modal show={showVoiceModal} onHide={() => setShowVoiceModal(false)} centered>
+        <Modal.Header closeButton><Modal.Title>Voice Command</Modal.Title></Modal.Header>
+        <Modal.Body>
+          <div className="text-center">
+            <Button variant={isListening ? "danger" : "primary"} onClick={toggleVoiceRecognition} className="mb-3">
+              <FaMicrophone size={24} className="me-2" />
+              {isListening ? "Stop Listening" : "Start Listening"}
+            </Button>
+            <div
+              className="border p-3 rounded bg-light"
+              style={{
+                height: "150px", 
+                textAlign: "left",
+                overflowY: "auto", 
+              }}
+            >
+              {transcriptList.length === 0 ? "Press microphone and speak..." : transcriptList.map((t, idx) => <div key={idx}>• {t}</div>)}
+            </div>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowVoiceModal(false)}>Close</Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };
