@@ -7,7 +7,7 @@ import Container from "react-bootstrap/esm/Container";
 import Row from "react-bootstrap/Row";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const { login, loading } = useContext(UserauthContext);
@@ -16,8 +16,8 @@ const Login = () => {
     e.preventDefault();
     setError("");
 
-    if (!email || !password) {
-      setError("Vui lòng nhập email và mật khẩu!");
+    if (!username || !password) {
+      setError("Vui lòng nhập tên đăng nhập và mật khẩu!");
       return;
     }
 
@@ -57,19 +57,21 @@ const Login = () => {
               Login
             </p>
 
-            {error && <p style={{ color: "red", textAlign: "center" }}>{error}</p>}
+            {error && (
+              <p style={{ color: "red", textAlign: "center" }}>{error}</p>
+            )}
 
-            <Form.Group className="mb-3" controlId="formBasicEmail">
+            <Form.Group className="mb-3" controlId="formBasicUsername">
               <Form.Label style={{ color: "white" }}>
-                <i className="fa-solid fa-envelope"></i> Email address
+                <i className="fa-solid fa-user"></i> Username
               </Form.Label>
               <Form.Control
                 type="text"
-                name="email"
-                placeholder="Enter your email"
+                name="username"
+                placeholder="Enter your username"
                 disabled={loading}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
               />
             </Form.Group>
 
@@ -97,7 +99,12 @@ const Login = () => {
               />
             </Form.Group>
 
-            <Button style={{ width: "100%" }} variant="primary" type="submit" disabled={loading}>
+            <Button
+              style={{ width: "100%" }}
+              variant="primary"
+              type="submit"
+              disabled={loading}
+            >
               {loading ? "Logging in..." : "Submit"}
             </Button>
 

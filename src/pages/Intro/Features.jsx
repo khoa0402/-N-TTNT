@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Card, Form } from "react-bootstrap";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 
 const generateMockData = (date) => {
   const hours = Array.from({ length: 24 }, (_, i) => i);
@@ -14,7 +23,7 @@ const generateMockData = (date) => {
 };
 
 const TemperatureHumidityLightChart = () => {
-  document.body.style.backgroundImage = "url(/src/assets/background2.png)";
+  document.body.style.backgroundImage = "url(/src/assets/grey.jpg)";
   document.body.style.backgroundSize = "120% auto";
   document.body.style.backgroundPosition = "center";
   document.body.style.backgroundRepeat = "no-repeat";
@@ -48,7 +57,13 @@ const TemperatureHumidityLightChart = () => {
 
   return (
     <div className="container mt-4">
-      <div style={{ backgroundColor: "rgba(0, 0, 0, 0.5)", padding: "3px", borderRadius: "8px" }}>
+      <div
+        style={{
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
+          padding: "3px",
+          borderRadius: "8px",
+        }}
+      >
         <h3 className="text-center mb-2" style={{ color: "white" }}>
           Temperature, Humidity & Light Chart
         </h3>

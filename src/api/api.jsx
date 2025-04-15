@@ -1,10 +1,8 @@
 import axios from "axios";
 
 const API_BASE_URL =
-  //   import.meta.env.VITE_BACKEND_LOGIN_ENDPOINT || "http://localhost:8070/api";
-  "https://webhook.site/d84d1d54-3cbf-4949-8dac-0b95aace2313";
+  import.meta.env.VITE_BACKEND_LOGIN_ENDPOINT || "http://localhost:8070/";
 
-// Tạo instance axios với cấu hình mặc định
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -12,12 +10,12 @@ const api = axios.create({
   },
 });
 
-// Interceptor để thêm token vào header nếu có
+// Interceptor để thêm accessToken vào header nếu có
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    const accessToken = localStorage.getItem("accessToken");
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
     }
     return config;
   },
@@ -78,21 +76,47 @@ export const apiService = {
   },
 
   // Temperature API
-  getTemperatureStream: async (deviceId) => {
-    const response = await api.get("/api/temperature/stream", {
-      params: { deviceId },
+  getTemperatureStream: async () => {
+    const data = {
+      deviceId: 12,
+    };
+    const response = await api.get("/api/sensor/temperature/stream", {
+      params: data,
     });
     return response.data;
   },
+
+  getTemperatureByDate: async (date) => {
+    const response = await api.get("/api/temperature/by-date", {
+      params: { date },
+    });
+    return response.data;
+  },
+
   getHumidityStream: async (deviceId) => {
     const response = await api.get("/api/humidity/stream", {
       params: { deviceId },
     });
     return response.data;
   },
+
+  getHumidityByDate: async (date) => {
+    const response = await api.get("/api/humidity/by-date", {
+      params: { date },
+    });
+    return response.data;
+  },
+
   getLightStream: async (deviceId) => {
     const response = await api.get("/api/light/stream", {
       params: { deviceId },
+    });
+    return response.data;
+  },
+
+  getLightByDate: async (date) => {
+    const response = await api.get("/api/light/by-date", {
+      params: { date },
     });
     return response.data;
   },
@@ -123,9 +147,10 @@ export const apiService = {
       action: action,
       level: level,
     };
-    const response = await api.post("/device/fan/activate", controlData);
+    const response = await api.post("/devicecontrol/fan/activate", controlData);
     return response.data;
   },
+
   controlLight: async (action, level, color) => {
     const controlData = {
       deviceId: "1",
@@ -133,15 +158,22 @@ export const apiService = {
       level: level,
       color: color,
     };
-    const response = await api.post("/device/light/activate", controlData);
+    const response = await api.post(
+      "/devicecontrol/light/activate",
+      controlData
+    );
     return response.data;
   },
+
   controlDoor: async (action) => {
     const controlData = {
-      deviceId: "1",
+      deviceId: "user1",
       action: action,
     };
-    const response = await api.post("/device/door/activate", controlData);
+    const response = await api.post(
+      "/devicecontrol/door/activate",
+      controlData
+    );
     return response.data;
   },
 };

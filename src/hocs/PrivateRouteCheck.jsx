@@ -22,7 +22,7 @@ const PrivateRouteCheck = () => {
     if (result == "private") {
       // Check if user is logged in, if not, go back to home page
       if (!accessToken) {
-        // navigate("/");
+        navigate("/");
       }
     } else if (result == "public") {
       // Check if user is logged in, if yes, go to dashboard

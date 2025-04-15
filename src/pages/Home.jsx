@@ -8,6 +8,7 @@ import {
   Button,
   Form,
   Modal,
+  Alert,
 } from "react-bootstrap";
 import { FaHeart, FaStar } from "react-icons/fa";
 import { FaDoorOpen, FaDoorClosed } from "react-icons/fa";
@@ -19,8 +20,18 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "chart.js/auto";
 import apiService from "../api/api";
 
+const predefinedColors = [
+  { name: "red", hex: "#FF0000" },
+  { name: "orange", hex: "#FFA500" },
+  { name: "yellow", hex: "#FFFF00" },
+  { name: "green", hex: "#008000" },
+  { name: "blue", hex: "#0000FF" },
+  { name: "indigo", hex: "#4B0082" },
+  { name: "purple", hex: "#800080" },
+];
+
 const Home = () => {
-  // document.body.style.backgroundImage = "url(/src/assets/background2.png)";
+  document.body.style.backgroundColor = "gray";
   document.body.style.backgroundSize = "120% auto";
   document.body.style.backgroundPosition = "center";
   document.body.style.backgroundRepeat = "no-repeat";
@@ -29,16 +40,105 @@ const Home = () => {
   const [fanOn, setFanOn] = useState(false);
   const [doorOpen, setDoorOpen] = useState(false);
   const [fanLevel, setFanLevel] = useState(1);
-  const [lightLevel, setLightLevel] = useState(1); // State for light brightness
+  const [lightLevel, setLightLevel] = useState(1);
   const [sensorTemp, setSensorTemp] = useState(true);
   const [sensorHumidity, setSensorHumidity] = useState(true);
   const [sensorLight, setSensorLight] = useState(true);
-  const [selectedColor, setSelectedColor] = useState("#FFD700");
+  const [selectedColor, setSelectedColor] = useState(predefinedColors[0].name);
   const [showColorPicker, setShowColorPicker] = useState(false);
 
   const [temperature, setTemperature] = useState(25);
   const [humidity, setHumidity] = useState(65);
   const [light, setLight] = useState(500);
+
+  const [showTempAlert, setShowTempAlert] = useState(false);
+  const [showHumidityAlert, setShowHumidityAlert] = useState(false);
+  const [showLightAlert, setShowLightAlert] = useState(false);
+
+  // State cho dữ liệu biểu đồ
+  const [tempData, setTempData] = useState([
+    20, 28, 32, 24, 30, 23, 25, 24, 22,
+  ]);
+  const [humidityData, setHumidityData] = useState([
+    60, 70, 69, 59, 68, 62, 65, 63, 60,
+  ]);
+  const [lightData, setLightData] = useState([
+    29, 45, 50, 60, 70, 75, 80, 65, 30,
+  ]);
+  const [chartLabels, setChartLabels] = useState([
+    "00:00",
+    "3:00",
+    "06:00",
+    "9:00",
+    "12:00",
+    "15:00",
+    "18:00",
+    "21:00",
+    "23:59",
+  ]);
+
+  // Theo dõi alert
+  useEffect(() => {
+    if (temperature > 30) {
+      setShowTempAlert(true);
+    } else {
+      setShowTempAlert(false);
+    }
+  }, [temperature]);
+
+  useEffect(() => {
+    if (humidity > 80) {
+      setShowHumidityAlert(true);
+    } else {
+      setShowHumidityAlert(false);
+    }
+  }, [humidity]);
+
+  useEffect(() => {
+    if (light > 1000) {
+      setShowLightAlert(true);
+    } else {
+      setShowLightAlert(false);
+    }
+  }, [light]);
+
+  // Lấy dữ liệu từ API
+  useEffect(() => {
+    const fetchDataByDate = async () => {
+      const today = new Date().toISOString().split("T")[0]; // Ngày hôm nay: YYYY-MM-DD
+
+      try {
+        // Lấy dữ liệu nhiệt độ
+        const tempResponse = await apiService.getTemperatureByDate(today);
+        const tempItems = tempResponse.data || [];
+        if (tempItems.length > 0) {
+          setTempData(tempItems.map((item) => item.value));
+          setChartLabels(tempItems.map((item) => item.date.slice(11, 16))); // Lấy HH:mm
+          setTemperature(tempItems[tempItems.length - 1].value); // Giá trị mới nhất
+        }
+
+        // Lấy dữ liệu độ ẩm (giả sử định dạng tương tự)
+        const humidityResponse = await apiService.getHumidityByDate(today);
+        const humidityItems = humidityResponse.data || [];
+        if (humidityItems.length > 0) {
+          setHumidityData(humidityItems.map((item) => item.value));
+          setHumidity(humidityItems[humidityItems.length - 1].value);
+        }
+
+        // Lấy dữ liệu ánh sáng (giả sử định dạng tương tự)
+        const lightResponse = await apiService.getLightByDate(today);
+        const lightItems = lightResponse.data || [];
+        if (lightItems.length > 0) {
+          setLightData(lightItems.map((item) => item.value));
+          setLight(lightItems[lightItems.length - 1].value);
+        }
+      } catch (error) {
+        console.error("Error fetching data by date:", error);
+      }
+    };
+
+    fetchDataByDate();
+  }, []);
 
   useEffect(() => {
     const fetchData = () => {
@@ -60,22 +160,50 @@ const Home = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const lightColors = [
-    "#FF0000",
-    "#FF4500",
-    "#FFA500",
-    "#FFFF00",
-    "#008000",
-    "#00CED1",
-    "#1E90FF",
-    "#8A2BE2",
-    "#FF1493",
-  ];
-
   const getColor = (isOn) => (isOn ? "#28a745" : "#dc3545");
+  const handleColorSelect = (color) => {
+    setSelectedColor(color.name);
+    apiService
+      .controlLight("on", lightLevel, color.name)
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
+        console.error("Error changing light color:", error);
+      });
+  };
 
   return (
     <Container fluid className="p-4">
+      {showTempAlert && (
+        <Alert
+          variant="danger"
+          onClose={() => setShowTempAlert(false)}
+          dismissible
+        >
+          Cảnh báo: Nhiệt độ vượt ngưỡng 30°C! Hiện tại:{" "}
+          {temperature.toFixed(1)}°C
+        </Alert>
+      )}
+      {showHumidityAlert && (
+        <Alert
+          variant="danger"
+          onClose={() => setShowHumidityAlert(false)}
+          dismissible
+        >
+          Cảnh báo: Độ ẩm vượt ngưỡng 80%! Hiện tại: {humidity.toFixed(1)}%
+        </Alert>
+      )}
+      {showLightAlert && (
+        <Alert
+          variant="danger"
+          onClose={() => setShowLightAlert(false)}
+          dismissible
+        >
+          Cảnh báo: Ánh sáng vượt ngưỡng 1000 lx! Hiện tại: {light} lx
+        </Alert>
+      )}
+
       <Row>
         <Col md={2}>
           <Card className="p-3 text-center shadow-sm">
@@ -141,40 +269,38 @@ const Home = () => {
             <h5>Temperature & Humidity & Light History</h5>
             <Line
               data={{
-                labels: [
-                  "00:00",
-                  "3:00",
-                  "06:00",
-                  "9:00",
-                  "12:00",
-                  "15:00",
-                  "18:00",
-                  "21:00",
-                  "23:59",
-                ],
+                labels: chartLabels,
                 datasets: [
                   {
                     label: "Temperature (°C)",
-                    data: [20, 28, 32, 24, 30, 23, 25, 24, 22],
+                    data: tempData,
                     borderColor: "red",
                     borderWidth: 2,
                     fill: false,
                   },
                   {
                     label: "Humidity (%)",
-                    data: [60, 70, 69, 59, 68, 62, 65, 63, 60, 61],
+                    data: humidityData,
                     borderColor: "blue",
                     borderWidth: 2,
                     fill: false,
                   },
                   {
                     label: "Light Level (lx)",
-                    data: [29, 45, 50, 60, 70, 75, 80, 65, 30],
+                    data: lightData,
                     borderColor: "#FFC107",
                     borderWidth: 2,
                     fill: false,
                   },
                 ],
+              }}
+              options={{
+                responsive: true,
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                  },
+                },
               }}
             />
           </Card>
@@ -377,17 +503,33 @@ const Home = () => {
                         <Modal.Title>Choose Light Color</Modal.Title>
                       </Modal.Header>
                       <Modal.Body>
-                        <SketchPicker
-                          color={selectedColor}
-                          onChangeComplete={(color) => {
-                            setSelectedColor(color.hex);
-                            apiService
-                              .controlLight("on", lightLevel, color.hex)
-                              .then((response) => {
-                                console.log(response);
-                              });
+                        <div
+                          style={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            gap: "10px",
+                            justifyContent: "center",
                           }}
-                        />
+                        >
+                          {predefinedColors.map((color) => (
+                            <div
+                              key={color.name}
+                              style={{
+                                width: "40px",
+                                height: "40px",
+                                borderRadius: "50%",
+                                backgroundColor: color.hex,
+                                cursor: "pointer",
+                                border:
+                                  selectedColor === color.name
+                                    ? "3px solid black"
+                                    : "1px solid gray",
+                              }}
+                              onClick={() => handleColorSelect(color)}
+                              title={color.name}
+                            />
+                          ))}
+                        </div>
                       </Modal.Body>
                       <Modal.Footer>
                         <Button
