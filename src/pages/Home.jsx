@@ -223,12 +223,57 @@ const Home = () => {
           <Card className="p-2 mt-3 shadow-sm text-center">
             <h5>Light Color</h5>
             <Button className="mb-2" onClick={() => setShowColorPicker(true)}>Select Color</Button>
+
             <Modal show={showColorPicker} onHide={() => setShowColorPicker(false)} centered>
-              <Modal.Header closeButton><Modal.Title>Choose Light Color</Modal.Title></Modal.Header>
-              <Modal.Body><SketchPicker color={selectedColor} onChangeComplete={(color) => setSelectedColor(color.hex)} /></Modal.Body>
-              <Modal.Footer><Button variant="secondary" onClick={() => setShowColorPicker(false)}>Close</Button></Modal.Footer>
+              <Modal.Header closeButton>
+                <Modal.Title>Choose Light Color</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <div className="d-flex flex-wrap justify-content-center gap-2">
+                  {[
+                    "#FF0000", // Red
+                    "#FF7F00", // Orange
+                    "#FFFF00", // Yellow
+                    "#00FF00", // Green
+                    "#0000FF", // Blue
+                    "#4B0082", // Indigo
+                    "#8A2BE2", // Purple
+                  ].map((color) => (
+                    <div
+                      key={color}
+                      onClick={() => {
+                        setSelectedColor(color);
+                        setShowColorPicker(false);
+                      }}
+                      style={{
+                        width: "40px",
+                        height: "40px",
+                        backgroundColor: color,
+                        borderRadius: "50%", 
+                        border: selectedColor === color ? "3px solid #fff" : "1px solid #ccc",
+                        cursor: "pointer",
+                      }}
+                    />
+                  ))}
+                </div>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="secondary" onClick={() => setShowColorPicker(false)}>
+                  Close
+                </Button>
+              </Modal.Footer>
             </Modal>
-            <div style={{ width: "50px", height: "50px", borderRadius: "50%", backgroundColor: selectedColor, margin: "10px auto", border: "2px solid white" }}></div>
+
+            <div
+              style={{
+                width: "50px",
+                height: "50px",
+                borderRadius: "50%", 
+                backgroundColor: selectedColor,
+                margin: "10px auto",
+                border: "2px solid white",
+              }}
+            />
           </Card>
         </Col>
       </Row>
