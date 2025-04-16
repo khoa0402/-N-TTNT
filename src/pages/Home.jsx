@@ -733,7 +733,7 @@ const Home = () => {
         centered
       >
         <Modal.Header closeButton>
-          <Modal.Title>Voice Command</Modal.Title>
+          <Modal.Title>Door Access</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <DoorLock />
@@ -751,7 +751,7 @@ const Home = () => {
         centered
       >
         <Modal.Header closeButton>
-          <Modal.Title>Door Access Control</Modal.Title>
+          <Modal.Title>Voice Command</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div className="text-center">
