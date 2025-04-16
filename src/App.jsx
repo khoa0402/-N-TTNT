@@ -22,6 +22,7 @@ import Signup from "./pages/Auth/Signup";
 
 // Import bootstrap css
 import "bootstrap/dist/css/bootstrap.min.css";
+import DoorLock from "./components/DoorLock/DoorLock";
 import Test from "./pages/Test";
 
 const App = () => (
@@ -31,12 +32,12 @@ const App = () => (
         <Route exact path="/" element={<PrivateRouteCheck />}>
           <Route exact path="/" element={<Layout />}>
             <Route exact path="/" element={<Login />} />
-            <Route exact path="/test" element={<Test />} />
             <Route exact path="/login" element={<Login />} />
             <Route exact path="/signup" element={<Signup />} />
             <Route exact path="/home" element={<Home />} />
             <Route exact path="/features" element={<Features />} />
             <Route exact path="/history" element={<History />} />
+            <Route exact path="/test" element={<Test />} />
           </Route>
         </Route>
       </Route>

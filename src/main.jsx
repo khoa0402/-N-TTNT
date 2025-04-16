@@ -4,7 +4,7 @@ import { Provider } from "react-redux";
 
 // Import main App and global styles
 import App from "./App.jsx";
-
+import './index.css'
 // Import react-helmet tag to insert into header
 import { Helmet } from "react-helmet";
 

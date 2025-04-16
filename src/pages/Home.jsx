@@ -21,6 +21,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "chart.js/auto";
 import apiService from "../api/api";
 import Webcam from "react-webcam";
+import DoorLock from "../components/DoorLock/DoorLock";
 
 const predefinedColors = [
   { name: "red", hex: "#FF0000" },
@@ -64,7 +65,10 @@ const Home = () => {
   const [transcriptList, setTranscriptList] = useState([]);
   const [isListening, setIsListening] = useState(false);
 
+  //Use for face recognition
   const recognitionRef = useRef(null);
+
+  const [showDoorLock, setShowDoorLock] = useState(false);
 
   // State cho dữ liệu biểu đồ
   const [tempData, setTempData] = useState([
@@ -471,17 +475,7 @@ const Home = () => {
                   variant={doorOpen ? "info" : "secondary"}
                   className="w-100"
                   onClick={() => {
-                    if (!doorOpen) {
-                      setDoorOpen(true);
-                      apiService.controlDoor("open").then((response) => {
-                        console.log(response);
-                      });
-                    } else {
-                      setDoorOpen(false);
-                      apiService.controlDoor("close").then((response) => {
-                        console.log(response);
-                      });
-                    }
+                    setShowDoorLock(true);
                   }}
                 >
                   {doorOpen ? (
@@ -734,12 +728,30 @@ const Home = () => {
       )}
       {/* Voice Recognition Modal */}
       <Modal
+        show={showDoorLock}
+        onHide={() => setShowDoorLock(false)}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Voice Command</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <DoorLock />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDoorLock(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal
         show={showVoiceModal}
         onHide={() => setShowVoiceModal(false)}
         centered
       >
         <Modal.Header closeButton>
-          <Modal.Title>Voice Command</Modal.Title>
+          <Modal.Title>Door Access Control</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div className="text-center">
@@ -771,6 +783,8 @@ const Home = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+
+
     </Container>
   );
 };

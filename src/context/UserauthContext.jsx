@@ -11,7 +11,6 @@ export default UserauthContext;
 
 export const UserauthProvider = () => {
   const navigate = useNavigate();
-
   // State lưu token
   const [accessToken, setAccessToken] = useState(
     () => localStorage.getItem("accessToken") || null
@@ -40,7 +39,6 @@ export const UserauthProvider = () => {
           },
         }
       );
-
       // Giả sử API trả về token trong response.data.accessToken
       const token = response.data.data.token;
 
