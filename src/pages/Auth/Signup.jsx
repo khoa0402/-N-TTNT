@@ -21,7 +21,6 @@ const Signup = () => {
           className="col-4 mx-auto"
           style={{
             marginTop: 20 + "px",
-            backgroundColor: "grey",
             padding: 30 + "px",
             paddingTop: 12 + "px",
             paddingBottom: 12 + "px",
@@ -74,9 +73,12 @@ const Signup = () => {
               >
                 <i class="fa-solid fa-check"></i> Confirm password
               </Form.Label>
-              <Form.Control type="password" placeholder="Re-enter your password" />
+              <Form.Control
+                type="password"
+                placeholder="Re-enter your password"
+              />
             </Form.Group>
-            
+
             <Button
               style={{
                 width: 100 + "%",
@@ -94,9 +96,15 @@ const Signup = () => {
                 color: "white",
               }}
             >
-              Already have an account? <a href="/login" style={{
-                color: "white",
-              }}>Login here!</a>
+              Already have an account?{" "}
+              <a
+                href="/login"
+                style={{
+                  color: "white",
+                }}
+              >
+                Login here!
+              </a>
             </p>
           </Form>
         </div>

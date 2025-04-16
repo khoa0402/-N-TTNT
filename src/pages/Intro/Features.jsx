@@ -99,7 +99,7 @@ const TemperatureHumidityLightChart = () => {
                     type="monotone"
                     dataKey="lightLevel"
                     stroke="#FFD700"
-                    name="Light Level (lx)"
+                    name="Light Level (%)"
                     strokeOpacity={visibleLines.lightLevel ? 1 : 0}
                   />
                 </LineChart>
@@ -143,7 +143,7 @@ const TemperatureHumidityLightChart = () => {
                     type="monotone"
                     dataKey="lightLevel"
                     stroke="#FFD700"
-                    name="Light Level (lx)"
+                    name="Light Level (%)"
                     strokeOpacity={visibleLines.lightLevel ? 1 : 0}
                   />
                 </LineChart>

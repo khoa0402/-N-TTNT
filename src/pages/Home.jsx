@@ -12,7 +12,7 @@ import {
 } from "react-bootstrap";
 import { FaHeart, FaStar } from "react-icons/fa";
 import { FaDoorOpen, FaDoorClosed } from "react-icons/fa";
-import {FaMicrophone, FaUserCircle} from "react-icons/fa";
+import { FaMicrophone, FaUserCircle } from "react-icons/fa";
 import { BsFillLightbulbFill, BsFan } from "react-icons/bs";
 import { Line } from "react-chartjs-2";
 import { motion } from "framer-motion";
@@ -51,7 +51,7 @@ const Home = () => {
 
   const [temperature, setTemperature] = useState(25);
   const [humidity, setHumidity] = useState(65);
-  const [light, setLight] = useState(500);
+  const [light, setLight] = useState(50);
 
   const [showTempAlert, setShowTempAlert] = useState(false);
   const [showHumidityAlert, setShowHumidityAlert] = useState(false);
@@ -106,7 +106,7 @@ const Home = () => {
   }, [humidity]);
 
   useEffect(() => {
-    if (light > 1000) {
+    if (light > 80) {
       setShowLightAlert(true);
     } else {
       setShowLightAlert(false);
@@ -153,18 +153,18 @@ const Home = () => {
 
   useEffect(() => {
     const fetchData = () => {
-      // apiService.getTemperatureStream().then((response) => {
-      //   console.log(response.data);
-      //   setTemperature(response.data.value);
-      // });
-      // apiService.getHumidityStream().then((response) => {
-      //   console.log(response.data);
-      //   setHumidity(response.data.value);
-      // });
-      // apiService.getLightStream().then((response) => {
-      //   console.log(response.data);
-      //   setLight(response.data.value);
-      // });
+      apiService.getTemperatureStream().then((response) => {
+        console.log(response.data);
+        setTemperature(response.data.value);
+      });
+      apiService.getHumidityStream().then((response) => {
+        console.log(response.data);
+        setHumidity(response.data.value);
+      });
+      apiService.getLightStream().then((response) => {
+        console.log(response.data);
+        setLight(response.data.value);
+      });
     };
 
     const interval = setInterval(fetchData, 5000);
@@ -187,15 +187,15 @@ const Home = () => {
   const handleStartFaceScan = () => {
     setFaceScanComplete(false);
     setShowFaceScan(true);
-  
+
     const scanDuration = 10000;
-  
+
     setTimeout(() => {
       setFaceScanComplete(true);
       setShowFaceScan(false);
     }, scanDuration);
   };
-  
+
   useEffect(() => {
     if (faceScanComplete) {
       const timer = setTimeout(() => {
@@ -204,7 +204,6 @@ const Home = () => {
       return () => clearTimeout(timer);
     }
   }, [faceScanComplete]);
-  
 
   useEffect(() => {
     if (faceScanComplete) {
@@ -221,7 +220,8 @@ const Home = () => {
   };
 
   const toggleVoiceRecognition = () => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
       alert("Speech Recognition is not supported in this browser.");
       return;
@@ -229,17 +229,17 @@ const Home = () => {
 
     if (!isListening) {
       const recognition = new SpeechRecognition();
-      recognition.lang = "vi-VN"; 
+      recognition.lang = "vi-VN";
       recognition.interimResults = false;
       recognition.continuous = false;
 
       recognition.onresult = (event) => {
         const newTranscript = event.results[0][0].transcript;
-        setTranscriptList(prev => [...prev, newTranscript]);
+        setTranscriptList((prev) => [...prev, newTranscript]);
       };
 
       recognition.onerror = (event) => {
-        setTranscriptList(prev => [...prev, "Error: " + event.error]);
+        setTranscriptList((prev) => [...prev, "Error: " + event.error]);
         setIsListening(false);
       };
 
@@ -283,7 +283,7 @@ const Home = () => {
           onClose={() => setShowLightAlert(false)}
           dismissible
         >
-          Cảnh báo: Ánh sáng vượt ngưỡng 1000 lx! Hiện tại: {light} lx
+          Cảnh báo: Ánh sáng vượt ngưỡng 80%! Hiện tại: {light.toFixed(1)}%
         </Alert>
       )}
 
@@ -342,7 +342,7 @@ const Home = () => {
               animate={{ color: getColor(sensorLight) }}
               transition={{ duration: 0.5 }}
             >
-              Light: {sensorLight ? `${light} lx` : "Off"}
+              Light: {sensorLight ? `${light} %` : "Off"}
             </motion.h4>
           </Card>
         </Col>
@@ -369,7 +369,7 @@ const Home = () => {
                     fill: false,
                   },
                   {
-                    label: "Light Level (lx)",
+                    label: "Light Level (%)",
                     data: lightData,
                     borderColor: "#FFC107",
                     borderWidth: 2,
@@ -390,10 +390,18 @@ const Home = () => {
           <Card className="p-3 mt-3 text-center shadow-sm">
             <h5>Security & Recognition</h5>
             <div className="d-flex justify-content-center gap-3 mt-2">
-              <Button variant="info" onClick={handleStartFaceScan} className="d-flex align-items-center gap-2">
+              <Button
+                variant="info"
+                onClick={handleStartFaceScan}
+                className="d-flex align-items-center gap-2"
+              >
                 <FaUserCircle /> Face Recognition
               </Button>
-              <Button variant="dark" onClick={handleOpenVoiceModal} className="d-flex align-items-center gap-2">
+              <Button
+                variant="dark"
+                onClick={handleOpenVoiceModal}
+                className="d-flex align-items-center gap-2"
+              >
                 <FaMicrophone /> Voice Command
               </Button>
             </div>
@@ -687,21 +695,26 @@ const Home = () => {
         <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-75 z-3">
           <div className="position-relative">
             <Webcam
-              width={480}  
-              height={360}  
+              width={480}
+              height={360}
               videoConstraints={{ facingMode: "user" }}
               className="rounded border border-light"
             />
             <motion.div
               className="position-absolute w-100"
               style={{
-                height: "6px",  
-                background: "linear-gradient(to right, transparent, lime, transparent)",
+                height: "6px",
+                background:
+                  "linear-gradient(to right, transparent, lime, transparent)",
                 opacity: 0.8,
-                boxShadow: "0 0 12px lime"
+                boxShadow: "0 0 12px lime",
               }}
               animate={{ top: ["0%", "90%"] }}
-              transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                repeatType: "reverse",
+              }}
             />
             <div className="text-white text-center mt-2">Scanning face...</div>
           </div>
@@ -711,34 +724,51 @@ const Home = () => {
       {/* Success Message */}
       {faceScanComplete && (
         <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center z-3">
-          <div className="text-white p-4 rounded shadow" style={{ backgroundColor: "rgba(40, 167, 69, 0.7)" }}>
+          <div
+            className="text-white p-4 rounded shadow"
+            style={{ backgroundColor: "rgba(40, 167, 69, 0.7)" }}
+          >
             Face recognized successfully!
           </div>
         </div>
       )}
       {/* Voice Recognition Modal */}
-      <Modal show={showVoiceModal} onHide={() => setShowVoiceModal(false)} centered>
-        <Modal.Header closeButton><Modal.Title>Voice Command</Modal.Title></Modal.Header>
+      <Modal
+        show={showVoiceModal}
+        onHide={() => setShowVoiceModal(false)}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Voice Command</Modal.Title>
+        </Modal.Header>
         <Modal.Body>
           <div className="text-center">
-            <Button variant={isListening ? "danger" : "primary"} onClick={toggleVoiceRecognition} className="mb-3">
+            <Button
+              variant={isListening ? "danger" : "primary"}
+              onClick={toggleVoiceRecognition}
+              className="mb-3"
+            >
               <FaMicrophone size={24} className="me-2" />
               {isListening ? "Stop Listening" : "Start Listening"}
             </Button>
             <div
               className="border p-3 rounded bg-light"
               style={{
-                height: "150px", 
+                height: "150px",
                 textAlign: "left",
-                overflowY: "auto", 
+                overflowY: "auto",
               }}
             >
-              {transcriptList.length === 0 ? "Press microphone and speak..." : transcriptList.map((t, idx) => <div key={idx}>• {t}</div>)}
+              {transcriptList.length === 0
+                ? "Press microphone and speak..."
+                : transcriptList.map((t, idx) => <div key={idx}>• {t}</div>)}
             </div>
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowVoiceModal(false)}>Close</Button>
+          <Button variant="secondary" onClick={() => setShowVoiceModal(false)}>
+            Close
+          </Button>
         </Modal.Footer>
       </Modal>
     </Container>

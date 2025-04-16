@@ -74,15 +74,11 @@ export const apiService = {
     const response = await api.post("/api/employee/add_device", deviceData);
     return response.data;
   },
-
-  // Temperature API
   getTemperatureStream: async () => {
     const data = {
       deviceId: 12,
     };
-    const response = await api.get("/api/sensor/temperature/stream", {
-      params: data,
-    });
+    const response = await api.post("/api/sensor/temperature/stream", data);
     return response.data;
   },
 
@@ -93,24 +89,26 @@ export const apiService = {
     return response.data;
   },
 
-  getHumidityStream: async (deviceId) => {
-    const response = await api.get("/api/humidity/stream", {
-      params: { deviceId },
-    });
+  getHumidityStream: async () => {
+    const data = {
+      deviceId: 12,
+    };
+    const response = await api.post("/api/sensor/humidity/stream", data);
     return response.data;
   },
 
   getHumidityByDate: async (date) => {
-    const response = await api.get("/api/humidity/by-date", {
+    const response = await api.get("/api/sensor/humidity/by-date", {
       params: { date },
     });
     return response.data;
   },
 
-  getLightStream: async (deviceId) => {
-    const response = await api.get("/api/light/stream", {
-      params: { deviceId },
-    });
+  getLightStream: async () => {
+    const data = {
+      deviceId: 12,
+    };
+    const response = await api.post("/api/sensor/light/stream", data);
     return response.data;
   },
 
