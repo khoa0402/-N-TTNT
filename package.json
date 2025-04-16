@@ -19,7 +19,6 @@
     "@mui/x-charts": "^7.14.0",
     "@reduxjs/toolkit": "^2.2.7",
     "@shadcn/ui": "^0.0.4",
-    "@tailwindcss/vite": "^4.1.4",
     "axios": "^1.7.4",
     "bootstrap": "^5.3.3",
     "framer-motion": "^12.7.3",
@@ -39,8 +38,7 @@
     "react-webcam": "^7.2.0",
     "reactjs-popup": "^2.0.6",
     "recharts": "^2.15.1",
-    "styled-components": "^6.1.12",
-    "tailwindcss": "^4.1.4"
+    "styled-components": "^6.1.12"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",
