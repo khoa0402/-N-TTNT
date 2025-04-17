@@ -10,17 +10,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-
-const generateMockData = (date) => {
-  const hours = Array.from({ length: 24 }, (_, i) => i);
-  return hours.map((hour) => ({
-    time: `${hour}:00`,
-    temperature: Math.floor(Math.random() * 15) + 20,
-    humidity: Math.floor(Math.random() * 50) + 30,
-    lightLevel: Math.floor(Math.random() * 80) + 20,
-    date,
-  }));
-};
+import apiService from "../../api/api";
 
 const TemperatureHumidityLightChart = () => {
   document.body.style.backgroundImage = "url(/src/assets/grey.jpg)";
@@ -32,6 +22,8 @@ const TemperatureHumidityLightChart = () => {
   const [selectedDate, setSelectedDate] = useState(today);
   const [todayData, setTodayData] = useState([]);
   const [selectedDateData, setSelectedDateData] = useState([]);
+  const [isTodayLoading, setIsTodayLoading] = useState(false); // Loading state for today
+  const [isSelectedDateLoading, setIsSelectedDateLoading] = useState(false); // Loading state for selected date
 
   const [visibleLines, setVisibleLines] = useState({
     temperature: true,
@@ -39,12 +31,48 @@ const TemperatureHumidityLightChart = () => {
     lightLevel: true,
   });
 
+  const fetchDataByDate = async (date, setData, setLoading) => {
+    setLoading(true); // Start loading
+    try {
+      // Fetch temperature data
+      const tempResponse = await apiService.getTemperatureByDate(date);
+      const tempItems = tempResponse.data || [];
+
+      // Fetch humidity data
+      const humidityResponse = await apiService.getHumidityByDate(date);
+      const humidityItems = humidityResponse.data || [];
+
+      // Fetch light level data
+      const lightResponse = await apiService.getLightByDate(date);
+      const lightItems = lightResponse.data || [];
+
+      // Combine data for recharts
+      const combinedData = tempItems.map((tempItem, index) => ({
+        time: tempItem.date.slice(11, 16), // Extract HH:mm from timestamp
+        temperature: tempItem.value,
+        humidity: humidityItems[index]?.value || 0, // Fallback if data is missing
+        lightLevel: lightItems[index]?.value || 0, // Fallback if data is missing
+      }));
+
+      setData(combinedData);
+    } catch (error) {
+      console.error(`Error fetching data for date ${date}:`, error);
+      setData([]); // Set empty data on error
+    } finally {
+      setLoading(false); // End loading
+    }
+  };
+
   useEffect(() => {
-    setTodayData(generateMockData(today));
+    fetchDataByDate(today, setTodayData, setIsTodayLoading);
   }, [today]);
 
   useEffect(() => {
-    setSelectedDateData(generateMockData(selectedDate));
+    fetchDataByDate(
+      selectedDate,
+      setSelectedDateData,
+      setIsSelectedDateLoading
+    );
   }, [selectedDate]);
 
   const handleLegendClick = (event) => {
@@ -74,36 +102,40 @@ const TemperatureHumidityLightChart = () => {
           <Card className="p-3 shadow-sm">
             <Card.Body>
               <h5 className="text-center">Today's Data ({today})</h5>
-              <ResponsiveContainer width="100%" height={280} className="mt-3">
-                <LineChart data={todayData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="time" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend onClick={handleLegendClick} />
-                  <Line
-                    type="monotone"
-                    dataKey="temperature"
-                    stroke="#ff7300"
-                    name="Temperature (°C)"
-                    strokeOpacity={visibleLines.temperature ? 1 : 0}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="humidity"
-                    stroke="#0088ff"
-                    name="Humidity (%)"
-                    strokeOpacity={visibleLines.humidity ? 1 : 0}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="lightLevel"
-                    stroke="#FFD700"
-                    name="Light Level (%)"
-                    strokeOpacity={visibleLines.lightLevel ? 1 : 0}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              {isTodayLoading ? (
+                <div className="text-center mt-3">Loading...</div>
+              ) : (
+                <ResponsiveContainer width="100%" height={280} className="mt-3">
+                  <LineChart data={todayData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="time" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend onClick={handleLegendClick} />
+                    <Line
+                      type="monotone"
+                      dataKey="temperature"
+                      stroke="#ff7300"
+                      name="Temperature (°C)"
+                      strokeOpacity={visibleLines.temperature ? 1 : 0}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="humidity"
+                      stroke="#0088ff"
+                      name="Humidity (%)"
+                      strokeOpacity={visibleLines.humidity ? 1 : 0}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="lightLevel"
+                      stroke="#FFD700"
+                      name="Light Level (%)"
+                      strokeOpacity={visibleLines.lightLevel ? 1 : 0}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
             </Card.Body>
           </Card>
         </div>
@@ -118,36 +150,40 @@ const TemperatureHumidityLightChart = () => {
                 onChange={(e) => setSelectedDate(e.target.value)}
                 className="mb-3 w-50 mx-auto"
               />
-              <ResponsiveContainer width="100%" height={280} className="mt-3">
-                <LineChart data={selectedDateData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="time" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend onClick={handleLegendClick} />
-                  <Line
-                    type="monotone"
-                    dataKey="temperature"
-                    stroke="#ff7300"
-                    name="Temperature (°C)"
-                    strokeOpacity={visibleLines.temperature ? 1 : 0}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="humidity"
-                    stroke="#0088ff"
-                    name="Humidity (%)"
-                    strokeOpacity={visibleLines.humidity ? 1 : 0}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="lightLevel"
-                    stroke="#FFD700"
-                    name="Light Level (%)"
-                    strokeOpacity={visibleLines.lightLevel ? 1 : 0}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              {isSelectedDateLoading ? (
+                <div className="text-center mt-3">Loading...</div>
+              ) : (
+                <ResponsiveContainer width="100%" height={280} className="mt-3">
+                  <LineChart data={selectedDateData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="time" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend onClick={handleLegendClick} />
+                    <Line
+                      type="monotone"
+                      dataKey="temperature"
+                      stroke="#ff7300"
+                      name="Temperature (°C)"
+                      strokeOpacity={visibleLines.temperature ? 1 : 0}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="humidity"
+                      stroke="#0088ff"
+                      name="Humidity (%)"
+                      strokeOpacity={visibleLines.humidity ? 1 : 0}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="lightLevel"
+                      stroke="#FFD700"
+                      name="Light Level (%)"
+                      strokeOpacity={visibleLines.lightLevel ? 1 : 0}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
             </Card.Body>
           </Card>
         </div>

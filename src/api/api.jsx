@@ -83,7 +83,7 @@ export const apiService = {
   },
 
   getTemperatureByDate: async (date) => {
-    const response = await api.get("/api/temperature/by-date", {
+    const response = await api.get("/api/sensor/temperature/by-date", {
       params: { date },
     });
     return response.data;
@@ -113,7 +113,7 @@ export const apiService = {
   },
 
   getLightByDate: async (date) => {
-    const response = await api.get("/api/light/by-date", {
+    const response = await api.get("/api/sensor/light/by-date", {
       params: { date },
     });
     return response.data;
